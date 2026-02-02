@@ -31,7 +31,7 @@ The API Gateway serves as the single entry point for all client traffic to Accou
 
 | Document | Status | Description |
 |----------|--------|-------------|
-| [api-specification.yaml](api-specification.yaml) | Planned | OpenAPI specification for gateway endpoints |
+| [api-specification.yaml](api-specification.yaml) | Complete | OpenAPI 3.1 specification |
 | [routing-configuration.md](routing-configuration.md) | Planned | Route definitions and configuration |
 | [rate-limiting.md](rate-limiting.md) | Planned | Rate limiting rules and implementation |
 | [security-filters.md](security-filters.md) | Planned | Authentication and security filter chain |

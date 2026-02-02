@@ -1,0 +1,459 @@
+openapi: 3.1.0
+info:
+  title: AccountabilityAtlas API Gateway
+  version: 1.0.0
+  description: |
+    Central entry point for all AccountabilityAtlas client traffic.
+    Routes requests to backend microservices and handles cross-cutting concerns.
+
+    ## Responsibilities
+    - Request routing to backend services
+    - JWT token validation
+    - Rate limiting by user tier and endpoint
+    - CORS configuration
+    - Request/response logging
+    - Health check aggregation
+
+    ## Base URL
+    All API endpoints are prefixed with `/api/v1`.
+
+    ## Rate Limiting
+    Rate limits vary by trust tier:
+    | Tier | Video Submissions | Search Queries | General API |
+    |------|-------------------|----------------|-------------|
+    | Anonymous | N/A | 100/hour | 1000/hour |
+    | NEW | 5/day | 500/hour | 5000/hour |
+    | TRUSTED | 50/day | Unlimited | Unlimited |
+    | MODERATOR+ | Unlimited | Unlimited | Unlimited |
+
+    Rate limit headers are included in all responses:
+    - `X-RateLimit-Limit`: Maximum requests allowed
+    - `X-RateLimit-Remaining`: Requests remaining in window
+    - `X-RateLimit-Reset`: Unix timestamp when limit resets
+  contact:
+    name: AccountabilityAtlas Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+  - url: https://api.accountabilityatlas.com
+    description: Production
+
+tags:
+  - name: Gateway
+    description: Gateway-specific endpoints
+  - name: Auth
+    description: Authentication (routed to user-service)
+  - name: Users
+    description: User management (routed to user-service)
+  - name: Videos
+    description: Video operations (routed to video-service)
+  - name: Locations
+    description: Location operations (routed to location-service)
+  - name: Search
+    description: Search operations (routed to search-service)
+  - name: Moderation
+    description: Moderation operations (routed to moderation-service)
+  - name: Notifications
+    description: Notification preferences (routed to notification-service)
+
+paths:
+  # Gateway-specific endpoints
+  /health:
+    get:
+      operationId: getGatewayHealth
+      summary: Gateway health check
+      description: Returns gateway health status.
+      tags: [Gateway]
+      security: []
+      responses:
+        '200':
+          description: Gateway is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "UP"
+                timestamp: "2025-02-01T12:00:00Z"
+
+  /health/services:
+    get:
+      operationId: getServicesHealth
+      summary: Aggregated service health
+      description: Returns health status of all backend services.
+      tags: [Gateway]
+      security: []
+      responses:
+        '200':
+          description: Service health statuses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesHealthResponse'
+              example:
+                status: "UP"
+                services:
+                  user-service:
+                    status: "UP"
+                    latencyMs: 12
+                  video-service:
+                    status: "UP"
+                    latencyMs: 8
+                  location-service:
+                    status: "UP"
+                    latencyMs: 15
+                  search-service:
+                    status: "UP"
+                    latencyMs: 5
+                  moderation-service:
+                    status: "UP"
+                    latencyMs: 10
+                  notification-service:
+                    status: "UP"
+                    latencyMs: 7
+                timestamp: "2025-02-01T12:00:00Z"
+        '503':
+          description: One or more services unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesHealthResponse'
+
+  # Route documentation (actual specs in individual services)
+  /api/v1/auth/{path}:
+    get:
+      operationId: routeAuthGet
+      summary: Authentication endpoints
+      description: |
+        Routes to user-service authentication endpoints.
+        See user-service API specification for full details.
+      tags: [Auth]
+      security: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See user-service API specification
+
+    post:
+      operationId: routeAuthPost
+      summary: Authentication endpoints
+      tags: [Auth]
+      security: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See user-service API specification
+
+  /api/v1/users/{path}:
+    get:
+      operationId: routeUsersGet
+      summary: User management endpoints
+      description: Routes to user-service user endpoints.
+      tags: [Users]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See user-service API specification
+
+    put:
+      operationId: routeUsersPut
+      summary: User management endpoints
+      tags: [Users]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See user-service API specification
+
+  /api/v1/videos/{path}:
+    get:
+      operationId: routeVideosGet
+      summary: Video endpoints
+      description: Routes to video-service.
+      tags: [Videos]
+      security: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See video-service API specification
+
+    post:
+      operationId: routeVideosPost
+      summary: Video endpoints
+      tags: [Videos]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See video-service API specification
+
+    put:
+      operationId: routeVideosPut
+      summary: Video endpoints
+      tags: [Videos]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See video-service API specification
+
+    delete:
+      operationId: routeVideosDelete
+      summary: Video endpoints
+      tags: [Videos]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See video-service API specification
+
+  /api/v1/locations/{path}:
+    get:
+      operationId: routeLocationsGet
+      summary: Location endpoints
+      description: Routes to location-service.
+      tags: [Locations]
+      security: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See location-service API specification
+
+    post:
+      operationId: routeLocationsPost
+      summary: Location endpoints
+      tags: [Locations]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See location-service API specification
+
+  /api/v1/search/{path}:
+    get:
+      operationId: routeSearchGet
+      summary: Search endpoints
+      description: Routes to search-service.
+      tags: [Search]
+      security: []
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See search-service API specification
+
+  /api/v1/moderation/{path}:
+    get:
+      operationId: routeModerationGet
+      summary: Moderation endpoints
+      description: Routes to moderation-service.
+      tags: [Moderation]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See moderation-service API specification
+
+    post:
+      operationId: routeModerationPost
+      summary: Moderation endpoints
+      tags: [Moderation]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See moderation-service API specification
+
+  /api/v1/notifications/{path}:
+    get:
+      operationId: routeNotificationsGet
+      summary: Notification endpoints
+      description: Routes to notification-service.
+      tags: [Notifications]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See notification-service API specification
+
+    put:
+      operationId: routeNotificationsPut
+      summary: Notification endpoints
+      tags: [Notifications]
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: See notification-service API specification
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT access token issued by user-service.
+        Include in Authorization header: `Bearer <token>`
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+        timestamp:
+          type: string
+          format: date-time
+
+    ServicesHealthResponse:
+      type: object
+      required: [status, services, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, DEGRADED]
+          description: |
+            - `UP`: All services healthy
+            - `DEGRADED`: Some services unhealthy
+            - `DOWN`: Critical services unhealthy
+        services:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ServiceHealth'
+        timestamp:
+          type: string
+          format: date-time
+
+    ServiceHealth:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+        latencyMs:
+          type: integer
+          description: Health check latency in milliseconds
+        error:
+          type: string
+          description: Error message if unhealthy
+
+    RateLimitError:
+      type: object
+      required: [code, message, retryAfter]
+      properties:
+        code:
+          type: string
+          const: "RATE_LIMITED"
+        message:
+          type: string
+        retryAfter:
+          type: integer
+          description: Seconds until rate limit resets
+        traceId:
+          type: string
+          format: uuid
+
+  responses:
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Maximum requests allowed in window
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Requests remaining (will be 0)
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until limit resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RateLimitError'
+          example:
+            code: "RATE_LIMITED"
+            message: "Rate limit exceeded. Please retry after 60 seconds."
+            retryAfter: 60
+            traceId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+security:
+  - bearerAuth: []
