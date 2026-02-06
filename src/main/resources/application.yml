@@ -27,6 +27,10 @@ spring:
 app:
   cors:
     allowed-origins: http://localhost:3000
+  jwt:
+    # Passthrough mode lets downstream services handle their own authentication
+    # Set to false in production when using shared keys
+    passthrough: true
 
 management:
   endpoints:

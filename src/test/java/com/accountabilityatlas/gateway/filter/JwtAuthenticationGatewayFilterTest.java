@@ -31,7 +31,8 @@ class JwtAuthenticationGatewayFilterTest {
     KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
     generator.initialize(2048);
     keyPair = generator.generateKeyPair();
-    filter = new JwtAuthenticationGatewayFilter(keyPair);
+    // Test with passthrough mode disabled to verify JWT validation
+    filter = new JwtAuthenticationGatewayFilter(keyPair, false);
     chain = mock(GatewayFilterChain.class);
   }
 

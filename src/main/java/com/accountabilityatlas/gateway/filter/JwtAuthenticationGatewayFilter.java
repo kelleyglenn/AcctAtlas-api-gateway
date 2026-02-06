@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -27,9 +28,12 @@ public class JwtAuthenticationGatewayFilter implements GlobalFilter, Ordered {
   private static final List<String> PUBLIC_PATHS = List.of("/api/v1/auth/");
 
   private final KeyPair keyPair;
+  private final boolean passthroughMode;
 
-  public JwtAuthenticationGatewayFilter(KeyPair keyPair) {
+  public JwtAuthenticationGatewayFilter(
+      KeyPair keyPair, @Value("${app.jwt.passthrough:true}") boolean passthroughMode) {
     this.keyPair = keyPair;
+    this.passthroughMode = passthroughMode;
   }
 
   @Override
@@ -39,6 +43,12 @@ public class JwtAuthenticationGatewayFilter implements GlobalFilter, Ordered {
 
     // Skip authentication for public paths
     if (isPublicPath(path)) {
+      return chain.filter(exchange);
+    }
+
+    // In passthrough mode, let downstream services handle authentication
+    // This is useful for local development where services have different key pairs
+    if (passthroughMode) {
       return chain.filter(exchange);
     }
 
