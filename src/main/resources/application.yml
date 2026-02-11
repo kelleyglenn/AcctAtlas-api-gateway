@@ -19,10 +19,22 @@ spring:
             - Path=/api/v1/users/**
           filters:
             - RewritePath=/api/v1/(?<segment>.*), /${segment}
+        - id: video-service
+          uri: ${VIDEO_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/videos/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /${segment}
         - id: location-service
           uri: ${LOCATION_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/api/v1/locations/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /${segment}
+        - id: moderation-service
+          uri: ${MODERATION_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/v1/moderation/**
           filters:
             - RewritePath=/api/v1/(?<segment>.*), /${segment}
   data:
