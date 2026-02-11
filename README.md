@@ -130,4 +130,6 @@ The gateway routes requests with `/api/v1` prefix to backend services:
 |--------------|----------------|
 | `/api/v1/auth/**` | user-service:8081 |
 | `/api/v1/users/**` | user-service:8081 |
+| `/api/v1/videos/**` | video-service:8082 |
 | `/api/v1/locations/**` | location-service:8083 |
+| `/api/v1/moderation/**` | moderation-service:8085 |
