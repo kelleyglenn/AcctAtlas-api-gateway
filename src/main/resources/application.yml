@@ -19,6 +19,12 @@ spring:
             - Path=/api/v1/users/**
           filters:
             - RewritePath=/api/v1/(?<segment>.*), /${segment}
+        - id: moderation-service
+          uri: ${MODERATION_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/v1/moderation/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /${segment}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
