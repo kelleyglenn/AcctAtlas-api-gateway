@@ -82,6 +82,9 @@ tasks.withType(JavaCompile).configureEach {
 // ---- JaCoCo ----
 jacocoTestReport {
     dependsOn test
+    reports {
+        xml.required = true
+    }
 }
 
 jacocoTestCoverageVerification {
