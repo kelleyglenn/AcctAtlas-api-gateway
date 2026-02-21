@@ -1,0 +1,4 @@
+logging:
+  level:
+    com.accountabilityatlas: INFO
+    org.springframework.security: WARN
